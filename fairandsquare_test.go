@@ -17,6 +17,9 @@ var tests = []testpair{
 	{[]string{"10", "120"}, 0},
 	{[]string{"100", "1000"}, 2},
 	{[]string{"9", "10000200002"}, 20},
+	{[]string{"65", "11261"}, 3},
+	{[]string{"10101", "45044"}, 5},
+	{[]string{"12320", "4004009004104"}, 33},
 }
 
 func generateTestPalins(init int64, ending int64) []int64 {
@@ -33,7 +36,7 @@ func generateTestPalins(init int64, ending int64) []int64 {
 }
 
 func TestSolve(t *testing.T) {
-	palins := generateTestPalins(1, 10000200002)
+	palins := generateTestPalins(1, 4004009004104)
 	assert := assert.New(t)
 	for _, pair := range tests {
 		v := Solve(pair.value, palins)
