@@ -73,11 +73,9 @@ func GeneratePalindromes(min *big.Int, max *big.Int) []*big.Int {
 		for _, x := range GeneratePalindromesWithLength(l) {
 			if x.Cmp(min) >= 0 && x.Cmp(max) <= 0 {
 				palindromes = append(palindromes, x)
-				fmt.Println(x)
 			}
 		}
 	}
-	fmt.Println("Now we're here")
 	return palindromes
 }
 
