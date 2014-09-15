@@ -5,73 +5,69 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"math/big"
 	"os"
 	"strconv"
 	"strings"
-
-	t "github.com/cznic/mathutil"
 )
 
-func Solve(a []string, palins []*big.Int) int {
-	i := new(big.Int)
-	n := new(big.Int)
-	plusone := new(big.Int)
-	fmt.Sscan("1", plusone)
-	fmt.Sscan(a[0], i)
-	fmt.Sscan(a[1], n)
+func Solve(a []string, palins []int64) int {
+	var i int64
+	var n int64
+	i, _ = strconv.ParseInt(a[0], 10, 64)
+	n, _ = strconv.ParseInt(a[1], 10, 64)
 	return PalinsInLine(i, n, palins)
 }
 
-func PalinsInLine(i *big.Int, n *big.Int, palins []*big.Int) int {
+func PalinsInLine(i int64, n int64, palins []int64) int {
 	cases := 0
 	for _, palindrome := range palins {
-		if palindrome.Cmp(i) >= 0 && palindrome.Cmp(n) <= 0 {
+		if palindrome >= i && palindrome <= n {
 			cases += 1
 		}
 	}
 	return cases
 }
 
-func GeneratePalindromesWithLength(l int) []*big.Int {
-	one := big.NewInt(1)
-	var palindromes []*big.Int
+func GeneratePalindromesWithLength(l int) []int64 {
+	var palindromes []int64
 	if l == 1 {
-		for i := 1; i < 10; i++ {
-			x := big.NewInt(int64(i))
-			palindromes = append(palindromes, x)
+		for i := int64(1); i < 10; i++ {
+			palindromes = append(palindromes, i)
 		}
 		return palindromes
 	}
 	if l%2 == 1 {
-		half_length := (l - 1) / 2
-		for x := big.NewInt(int64(0)); x.Cmp(big.NewInt(10)) < 0; x = x.Add(x, one) {
-			for y := big.NewInt(int64(math.Pow(10, float64(half_length-1)))); y.Cmp(big.NewInt(int64(math.Pow(10, float64(half_length))))) < 0; y = y.Add(y, one) {
-				palindrome := new(big.Int)
-				palstring := y.String() + x.String() + Reverse(y.String())
-				fmt.Sscan(palstring, palindrome)
+		half_length := int64((l - 1) / 2)
+		for x := int64(0); x < int64(10); x++ {
+			for y := int64(math.Pow(10, float64(half_length-1))); y < int64(math.Pow(10, float64(half_length))); y++ {
+				ystring := strconv.FormatInt(y, 10)
+				xstring := strconv.FormatInt(x, 10)
+				palstring := ystring + xstring + Reverse(ystring)
+				palindrome, _ := strconv.ParseInt(palstring, 10, 64)
 				palindromes = append(palindromes, palindrome)
 			}
 		}
 	} else {
-		half_length := l / 2
-		for x := big.NewInt(int64(math.Pow(10, float64(half_length-1)))); x.Cmp(big.NewInt(int64(math.Pow(10, float64(half_length))))) < 0; x = x.Add(x, one) {
-			palindrome := new(big.Int)
-			palstring := x.String() + Reverse(x.String())
-			fmt.Sscan(palstring, palindrome)
+		half_length := int64(l / 2)
+		for x := int64(math.Pow(10, float64(half_length-1))); x < int64(math.Pow(10, float64(half_length))); x++ {
+			xstring := strconv.FormatInt(x, 10)
+			palstring := xstring + Reverse(xstring)
+			palindrome, _ := strconv.ParseInt(palstring, 10, 64)
 			palindromes = append(palindromes, palindrome)
 		}
 	}
 	return palindromes
 }
 
-func GeneratePalindromes(min *big.Int, max *big.Int) []*big.Int {
-	min_len := len(min.String())
-	max_len := len(max.String())
-	var palindromes []*big.Int
+func GeneratePalindromes(min int64, max int64) []int64 {
+	max_string := strconv.FormatInt(max, 10)
+	min_string := strconv.FormatInt(min, 10)
+	min_len := len(min_string)
+	max_len := len(max_string)
+	var palindromes []int64
 	for l := min_len; l <= max_len; l++ {
 		for _, x := range GeneratePalindromesWithLength(l) {
-			if x.Cmp(min) >= 0 && x.Cmp(max) <= 0 {
+			if x >= min && x <= max {
 				palindromes = append(palindromes, x)
 			}
 		}
@@ -79,10 +75,10 @@ func GeneratePalindromes(min *big.Int, max *big.Int) []*big.Int {
 	return palindromes
 }
 
-func isBigPalindrome(s *big.Int) bool {
-	i := new(big.Int)
-	fmt.Sscan(Reverse(s.String()), i)
-	return s.Cmp(i) == 0
+func isPalindrome(s int64) bool {
+	i := strconv.FormatInt(s, 10)
+	reversed, _ := strconv.ParseInt(Reverse(i), 10, 64)
+	return s == reversed
 }
 
 func GrabLines(args string) []string {
@@ -99,10 +95,9 @@ func GrabLines(args string) []string {
 	return lines
 }
 
-func isBigSquare(s *big.Int) bool {
-	n := new(big.Int)
-	root := t.SqrtBig(s)
-	return s.Cmp(n.Mul(root, root)) == 0
+func isSquare(s int64) bool {
+	root := int64(math.Sqrt(float64(s)))
+	return (root * root) == s
 }
 
 func Reverse(s string) string {
@@ -115,32 +110,30 @@ func Reverse(s string) string {
 	return newstring
 }
 
-func GeneratePalins(lines []string) []*big.Int {
-	var palins []*big.Int
-	init := big.NewInt(0)
-	ending := big.NewInt(0)
+func GeneratePalins(lines []string) []int64 {
+	var palins []int64
+	var init int64
+	var ending int64
 	for index, line := range lines {
-		i := new(big.Int)
-		n := new(big.Int)
 		arr := strings.Split(line, " ")
-		fmt.Sscan(arr[0], i)
-		fmt.Sscan(arr[1], n)
+		i, _ := strconv.ParseInt(arr[0], 10, 64)
+		n, _ := strconv.ParseInt(arr[1], 10, 64)
 		if index == 0 {
 			init = i
 			ending = n
 		} else {
-			if init.Cmp(i) >= 0 {
+			if i < init {
 				init = i
 			}
-			if ending.Cmp(n) <= 0 {
+			if n > ending {
 				ending = n
 			}
 		}
 	}
 	for _, palin := range GeneratePalindromes(init, ending) {
-		if isBigSquare(palin) {
-			root := t.SqrtBig(palin)
-			if isBigPalindrome(root) {
+		if isSquare(palin) {
+			root := int64(math.Sqrt(float64(palin)))
+			if isPalindrome(root) {
 				palins = append(palins, palin)
 			}
 		}
