@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func Solve(a []string, palins []int64) int {
@@ -142,6 +143,7 @@ func GeneratePalins(lines []string) []int64 {
 }
 
 func main() {
+	start := time.Now()
 	argsWithoutProgram := os.Args[1]
 	lines := GrabLines(argsWithoutProgram)
 	cases, _ := strconv.Atoi(lines[0])
@@ -150,4 +152,5 @@ func main() {
 		line := strings.Split(lines[i], " ")
 		fmt.Printf("Case #%d: %d\n", i, Solve(line, palins))
 	}
+	fmt.Println(time.Since(start))
 }
