@@ -13,20 +13,21 @@ import (
 	t "github.com/cznic/mathutil"
 )
 
-func Solve(a []string) int {
+func Solve(a []string, palins []*big.Int) int {
 	i := new(big.Int)
 	n := new(big.Int)
 	plusone := new(big.Int)
 	fmt.Sscan("1", plusone)
-	cases := 0
 	fmt.Sscan(a[0], i)
 	fmt.Sscan(a[1], n)
-	for _, palindrome := range GeneratePalindromes(i, n) {
-		if isBigSquare(&palindrome) {
-			root := t.SqrtBig(&palindrome)
-			if isBigPalindrome(root) {
-				cases += 1
-			}
+	return PalinsInLine(i, n, palins)
+}
+
+func PalinsInLine(i *big.Int, n *big.Int, palins []*big.Int) int {
+	cases := 0
+	for _, palindrome := range palins {
+		if palindrome.Cmp(i) >= 0 && palindrome.Cmp(n) <= 0 {
+			cases += 1
 		}
 	}
 	return cases
@@ -64,17 +65,19 @@ func GeneratePalindromesWithLength(l int) []*big.Int {
 	return palindromes
 }
 
-func GeneratePalindromes(min *big.Int, max *big.Int) []big.Int {
+func GeneratePalindromes(min *big.Int, max *big.Int) []*big.Int {
 	min_len := len(min.String())
 	max_len := len(max.String())
-	var palindromes []big.Int
+	var palindromes []*big.Int
 	for l := min_len; l <= max_len; l++ {
 		for _, x := range GeneratePalindromesWithLength(l) {
 			if x.Cmp(min) >= 0 && x.Cmp(max) <= 0 {
-				palindromes = append(palindromes, *x)
+				palindromes = append(palindromes, x)
+				fmt.Println(x)
 			}
 		}
 	}
+	fmt.Println("Now we're here")
 	return palindromes
 }
 
@@ -114,12 +117,46 @@ func Reverse(s string) string {
 	return newstring
 }
 
+func GeneratePalins(lines []string) []*big.Int {
+	var palins []*big.Int
+	init := big.NewInt(0)
+	ending := big.NewInt(0)
+	for index, line := range lines {
+		i := new(big.Int)
+		n := new(big.Int)
+		arr := strings.Split(line, " ")
+		fmt.Sscan(arr[0], i)
+		fmt.Sscan(arr[1], n)
+		if index == 0 {
+			init = i
+			ending = n
+		} else {
+			if init.Cmp(i) >= 0 {
+				init = i
+			}
+			if ending.Cmp(n) <= 0 {
+				ending = n
+			}
+		}
+	}
+	for _, palin := range GeneratePalindromes(init, ending) {
+		if isBigSquare(palin) {
+			root := t.SqrtBig(palin)
+			if isBigPalindrome(root) {
+				palins = append(palins, palin)
+			}
+		}
+	}
+	return palins
+}
+
 func main() {
 	argsWithoutProgram := os.Args[1]
 	lines := GrabLines(argsWithoutProgram)
 	cases, _ := strconv.Atoi(lines[0])
+	palins := GeneratePalins(lines[1:])
 	for i := 1; i <= cases; i++ {
 		line := strings.Split(lines[i], " ")
-		fmt.Printf("Case #%d: %d\n", i, Solve(line))
+		fmt.Printf("Case #%d: %d\n", i, Solve(line, palins))
 	}
 }
